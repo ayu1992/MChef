@@ -7,6 +7,8 @@ allCatAjaxd = 0;
 
 singleCatAjaxd = 0;
 
+// some useless comment.
+
 $(document).ready(function() {
   addInfiniteScroll($("#main_Browse_Category"), 1000, function() {
     return getAllCategory(allCatAjaxd);

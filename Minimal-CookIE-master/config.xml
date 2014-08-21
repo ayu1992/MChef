@@ -1,0 +1,43 @@
+ <widget 
+		id="com.phonegap.cookie"
+		xmlns = "http://www.w3.org/ns/widgets"
+        xmlns:intelxdk="http://services.html5tools-software.intel.com/ns/intelxdk"
+        xmlns:gap="http://phonegap.com/ns/1.0"
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		versioncode = "2"
+		version   = "2.0.0">
+    <name>CookIE</name>
+    <content src="index.html"/>
+    <description>
+      「如大廚般輕鬆煮出一桌好菜！」
+       CookIE 是你煮菜的好幫手，告訴CookIE你想煮哪幾道菜，然後跟著CookIE一步一步做，節省你煮菜的時間。 
+       在智慧型排程系統的運作下， CookIE會依照你選的菜單，做多道食譜的最佳化排序工作，讓您在最短的時間完成最多樣化的料理！
+    </description>
+    <author href="http://">
+        Fresh Livers
+    </author>
+	<supports-screens android:anyDensity="true" android:resizeable="true" 
+    android:smallScreens="true" 
+    android:normalScreens="true" 
+    android:largeScreens="true" 
+    android:xlargeScreens="true" />
+	<gap:platform name="ios"/>
+    <gap:platform name="android"/>
+    <gap:platform name="wp8"/>
+    <content src="index.html" />
+    <access origin="*" />
+	<preference name="orientation" value="portrait" />
+    <preference name="android-minSdkVersion" value="14" />
+    <preference name="android-maxSdkVersion" value="19" />
+    <preference name="android-targetSdkVersion" value="19" />
+    <preference name="android-permission" value="MOUNT_UNMOUNT_FILESYSTEMS" />
+    <preference name="android-permission" value="MEDIA_CONTENT_CONTROL" />
+    <preference name="android-signed" value="true" />
+		<icon src="img/drawable-ldpi/ic_launcher.png" gap:platform="android" gap:qualifier="ldpi" />
+		<icon src="img/drawable-mdpi/ic_launcher.png" gap:platform="android" gap:qualifier="mdpi" />
+		<icon src="img/drawable-hdpi/ic_launcher.png" gap:platform="android" gap:qualifier="hdpi" />
+		<icon src="img/drawable-xhdpi/ic_launcher.png" gap:platform="android" gap:qualifier="xhdpi" />
+		<icon src="img/drawable-xxhdpi/ic_launcher.png" gap:platform="android" gap:qualifier="xxhdpi" />
+    <intelxdk:plugin intelxdk:name="File" intelxdk:value="org.apache.cordova.file"/>
+    <intelxdk:plugin intelxdk:name="Media" intelxdk:value="org.apache.cordova.media" />
+</widget>

@@ -1,0 +1,646 @@
+<html>
+    <head>
+        <script>
+	        (function() {
+			    if ("-ms-user-select" in document.documentElement.style && navigator.userAgent.match(/IEMobile\/10\.0/)) {
+			        var msViewportStyle = document.createElement("style");
+			        msViewportStyle.appendChild(
+			            document.createTextNode("@-ms-viewport{width:auto!important}")
+			        );
+			        document.getElementsByTagName("head")[0].appendChild(msViewportStyle);
+			    }
+			})();
+            if (!window.openDatabase) {
+                alert('Databases are not supported in this browser.');
+                return;
+            }
+
+            var dbdb;
+            var shortName = 'WebSqlDB';
+            var version = '1.0';
+            var displayName = 'MinDB';
+            var maxSize = 655;
+            // this is called when an error happens in a transaction
+            function errorHandler(transaction, error) {
+                alert('Error: ' + error.message + ' code: ' + error.code);
+            }
+            // this is called when a successful transaction happens
+            function successCallBack() {
+                //alert("DEBUGGING: success");
+                console.log("success callback");
+            }
+            function nullHandler(){ };
+            // called when the application loads
+            function onBodyLoad(){
+                if (!window.openDatabase) {
+                    alert('Databases are not supported in this browser.');
+                    return;
+                }
+                db = openDatabase(shortName, version, displayName,maxSize);
+                db.transaction(function(tx){
+                    tx.executeSql('CREATE TABLE IF NOT EXISTS MenuIngredients(ingredientId INTEGER, recipeId INTEGER, name TEXT, amount TEXT, unitName TEXT, PRIMARY KEY (ingredientId, recipeId))',[],nullHandler,errorHandler);
+                    tx.executeSql('CREATE TABLE IF NOT EXISTS Recipes(recipeId INTEGER PRIMARY KEY)',[],nullHandler,errorHandler);
+                },errorHandler,successCallBack);
+
+                checkRecipeInDB(); //check recipes in DB
+                loadRecipes();
+            }
+            function ListDBValues(table) {
+                if (!window.openDatabase) {
+                    alert('Databases are not supported in this browser.');
+                    return;
+                }
+                // to change
+                db.transaction(function(transaction) {
+                    transaction.executeSql('SELECT * FROM ' + table, [],
+                        function(transaction, result) {
+                            if (result != null && result.rows != null) {
+                                for (var i = 0; i < result.rows.length; i++) {
+                                    var row = result.rows.item(i);
+                                    console.log(row);
+                                }
+                            }
+                        },errorHandler);
+                },errorHandler,nullHandler);
+                return;
+            }
+            function AddValueToIngredient(ingId, recipeId, name, amount, unitName) {
+                if (!window.openDatabase) {
+                    alert('Databases are not supported in this browser.');
+                    return;
+                }
+                //console.log("Adding values: ingredientId="+ingId+" recipeId="+recipeId+" name="+name+" amount="+amount+" unitName="+unitName);
+                db.transaction(function(tx) {
+                    tx.executeSql('INSERT INTO MenuIngredients(ingredientId,recipeId,name,amount,unitName) VALUES (?,?,?,?,?)',[ingId,recipeId,name,amount,unitName]);
+                });
+                //ListDBValues('MenuIngredients');
+                return false;
+            }
+            function AddRecipeValue(recipeId) {
+                if (!window.openDatabase) {
+                    alert('Databases are not supported in this browser.');
+                    return;
+                }
+                //console.log("Adding values: recipeId="+recipeId);
+                db.transaction(function(tx) {
+                    tx.executeSql('INSERT INTO Recipes(recipeId) VALUES (?)',[recipeId]);
+                    //alert("insert!");
+                });
+                ListDBValues('Recipes');
+                return false;
+            }
+            function deleteRecipe(recipeId) {
+                if (!window.openDatabase) {
+                    alert('Databases are not supported in this browser.');
+                    return;
+                }
+                console.log("Deleting columns: recipeId="+recipeId);
+                db.transaction(function(transaction) {
+                    transaction.executeSql('DELETE FROM Recipes WHERE recipeId = ' + recipeId);
+                });
+                loadDeck();
+                ListDBValues('Recipes');
+                return false;
+            }
+            function deleteIngColumn(intId, recipeId) {
+                if (!window.openDatabase) {
+                    alert('Databases are not supported in this browser.');
+                    return;
+                }
+                console.log("Deleting columns: ingredientId="+ingId+" recipeId="+recipeId);
+                db.transaction(function(transaction) {
+                    transaction.executeSql('DELETE FROM MenuIngredients WHERE ingredientId = '+ingId+' AND recipeId = '+recipeId);
+                });
+                ListDBValues('MenuIngredients');
+                return false;
+            }
+		</script>
+
+        <title>Cooking Intelligence Emulator</title>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0 ,target-densitydpi = device-dpi" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <META HTTP-EQUIV="Pragma" CONTENT="no-cache" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <link rel="stylesheet" type="text/css" href="css/icons.css" />    
+ 
+       <!--   
+     <link rel="stylesheet" type="text/css" href="css/af.ui.css" title="default" />
+  -->
+	  <link rel="stylesheet" type="text/css" href="css/tester.css" />
+	  <link rel="stylesheet" type="text/css" href="css/main.css"  />
+      <link rel="stylesheet" type="text/css" href="css/appframework.css"  />
+      <link rel="stylesheet" type="text/css" href="css/lists.css"  />
+      <link rel="stylesheet" type="text/css" href="css/forms.css"  />
+      <link rel="stylesheet" type="text/css" href="css/buttons.css"  />        
+      <link rel="stylesheet" type="text/css" href="css/badges.css"  />        
+      <link rel="stylesheet" type="text/css" href="css/grid.css"  />
+
+      <link rel="stylesheet" type="text/css" href="css/android.css"  />
+      <link rel="stylesheet" type="text/css" href="css/win8.css"  />
+      <link rel="stylesheet" type="text/css" href="css/bb.css"  />
+      <link rel="stylesheet" type="text/css" href="css/ios.css"  />
+      <link rel="stylesheet" type="text/css" href="css/ios7.css"  />
+      <link rel="stylesheet" type="text/css" href="css/tizen.css"  />
+      <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css"  />
+      <link rel="stylesheet" type="text/css" href="css/icons.fa.css"  />
+        
+      <link rel="stylesheet" type="text/css" href="plugins/css/af.actionsheet.css"  />
+      <link rel="stylesheet" type="text/css" href="plugins/css/af.popup.css"  />
+      <link rel="stylesheet" type="text/css" href="plugins/css/af.scroller.css"  />
+      <link rel="stylesheet" type="text/css" href="plugins/css/af.selectBox.css"  />        
+        
+        <!-- uncomment for intel.xdk apps 
+        <script type="text/javascript" charset="utf-8" src="intelxdk.js"></script>
+        <script type="text/javascript" charset="utf-8" src="xhr.js"></script>
+        -->
+        <script type="text/javascript" charset="utf-8" src="./appframework.js"></script>
+        <!-- include af.desktopBrowsers.js on desktop browsers only -->
+        <script>
+
+            function loadedPanel(what) {
+                //We are going to set the badge as the number of li elements inside the target
+                //$.ui.updateBadge("#aflink", $("#af").find("li").length);
+                console.log("load: "+what.id)
+                //$.ui.backButtonText = "Back"
+
+                switch(what.id){
+                    case "main_Deck":
+                        loadDeck();
+                        break;
+                    case "main_ToBuy_List":
+                        reloadToBuyList();
+                        break;
+                    case "Step":
+                        cookingStarted();
+                        break;
+                    case "Finish":
+                        finishedShowStatus();
+                        break;
+                    default:
+                        //do nothing
+                }
+            }
+            function unloadedPanel(what) {
+                console.log("unloaded " + what.id);
+            }
+            if (!((window.DocumentTouch && document instanceof DocumentTouch) || 'ontouchstart' in window)) {
+                var script = document.createElement("script");
+                script.src = "plugins/af.desktopBrowsers.js";
+                var tag = $("head").append(script);
+                //$.os.desktop=true;
+            }
+          //  $.feat.nativeTouchScroll=true;
+        </script>        
+        <script type="text/javascript" src="phonegap.js"></script>
+        <!--<script src="cdv-plugin-fb-connect.js"></script>
+        <script src="facebook-js-sdk.js"></script>!-->
+        <script type="text/javascript" charset="utf-8" src="./plugins/af.actionsheet.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./plugins/af.css3animate.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./plugins/af.passwordBox.js"></script>          
+        <script type="text/javascript" charset="utf-8" src="./plugins/af.scroller.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./plugins/af.selectBox.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./plugins/af.touchEvents.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./plugins/af.touchLayer.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./plugins/af.popup.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./ui/appframework.ui.js"></script>
+        <!-- <script type="text/javascript" charset="utf-8" src="./ui/transitions/all.js"></script> -->
+        <script type="text/javascript" charset="utf-8" src="./ui/transitions/fade.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./ui/transitions/flip.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./ui/transitions/pop.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./ui/transitions/slide.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./ui/transitions/slideDown.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./ui/transitions/slideUp.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./plugins/af.slidemenu.js"></script>
+        <script type="text/javascript">
+            /* This function runs once the page is loaded, but intel.xdk is not yet active */
+            //$.ui.animateHeaders=false;
+             var search=document.location.search.toLowerCase().replace("?","");
+             //if(!search)
+            $.ui.useOSThemes=false;
+            if(search.length>0) //Android fix has too many buggy issues on iOS - can't preview with $.os.android
+            {
+               $.ui.useOSThemes=false;
+                if(search=="win8")
+                    $.os.ie=true;
+                $.ui.ready(function(){
+                    $("#afui").get(0).className=search;
+                });
+            }
+            var webRoot = "./";
+            //$.os.android=true;								/** comment for launch **/
+            //$.ui.autoLaunch = false;						/** comment for launch **/
+            $.ui.openLinksNewTab = false;
+            $.ui.splitview=false;
+            $(document).ready(function(){
+                $.ui.launch();
+            });
+            /* This code is used to run as soon as intel.xdk activates */
+            var onDeviceReady = function () {
+                intel.xdk.device.setRotateOrientation("portrait");
+                //intel.xdk.device.setAutoRotate(false);
+                webRoot = intel.xdk.webRoot + "";
+                //hide splash screen
+                //intel.xdk.device.hideSplashScreen();
+                $.ui.blockPageScroll(); //block the page from scrolling at the header/footer 
+            };
+            document.addEventListener("intel.xdk.device.ready", onDeviceReady, false);
+
+            function showHide(obj, objToHide) {
+                var el = $("#" + objToHide)[0];
+
+                if (obj.className == "expanded") {
+                    obj.className = "collapsed";
+                } else {
+                    obj.className = "expanded";
+                }
+                $(el).toggle();
+
+            }
+            $.ui.useOSThemes=false;
+            if($.os.android||$.os.ie||search=="android"){
+                $.ui.ready(function(){
+                    $("#main .list").append("<li><a id='toggleAndroidTheme'>Toggle Theme Color</a></li>");
+                    var $el=$("#afui");
+                    $("#toggleAndroidTheme").bind("click",function(e){
+                        if($el.hasClass("light"))
+                            $el.removeClass("light");
+                        else
+                            $el.addClass("light");
+                    });
+                });
+            }
+            var feedback = function(){
+                $.ui.showModal("#Feedback","fade");
+            }
+            var request = function(){
+                $.ui.showModal("#request","fade");
+            }
+  
+			
+			
+			//}
+        </script>
+        <!-- 05/20 Rexxar || Javascript inclusion area !-->
+        <link rel="stylesheet" type="text/css" href="css/temp.css"  />
+        <script type="text/javascript" charset="utf-8" src="./js/globalVariables.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./js/clone.js"></script>
+         <script type="text/javascript" charset="utf-8" src="./js/appendFunctions.js"></script>
+         <script type="text/javascript" charset="utf-8" src="./js/deck.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./js/ajaxSearchResult2.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./js/ajaxRecipe.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./js/ajaxCategory.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./js/ajaxRecipeContent.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./js/utility.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./js/toBuyList.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./js/ajaxCooking.js"></script>
+        <script type="text/javascript" charset="utf-8" src="./js/cookingInterface.js"></script>
+
+        <script>
+            /* To allow cross domain access in Phonegap */
+            $(document).bind("mobileinit", function(){
+                $.support.cors = true;
+                $.mobile.allowCrossDomainPages = true;
+            });
+
+            $(document).ready(function() {
+                $('.listEle').bind('click',function(event){
+                    this.style.textDecoration = (this.style.textDecoration=="line-through")?"none":"line-through";
+                    this.style.color = (this.style.textDecoration=="line-through")?"#D8D8D8":"#53575E";
+                });
+            });
+        </script>
+	</head>
+
+    <body onload="onBodyLoad()">
+        <div id="afui" class="chinese_font">
+            <!-- SPLASH SCREEN !-->
+            <div id="splashscreen" class='ui-loader heavy'>
+                <img src="img/small.jpg">
+                <br><br>
+                <span class='icon loading spin'></span>
+
+            </div>
+			<!-- TOP LEFT CONRNER !-->
+			<header id="deckHeader">
+                <a id="menubadge" style="float:left!important" onclick="af.ui.toggleSideMenu()" class="menuButton" ></a>
+                <a class="button icon trash" style="float:right;margin-top:3px;" id="clearDeckBtn" onclick="clearDeck()" data-transition="fade"></a>
+				<h1 style="margin-left:3px;" id="headerText">調理台</h1>
+                
+                <!--sideBar -->
+                <!--sideBar -->
+                <div class="panel" id="main" data-title="Main" data-nav="leftNav" data-aside="rightNav">
+                    <div id="#navbar">
+                        <nav>
+                            <ul class="list">
+                                <li class="divider" class="icon home">Home</li>
+                                <li class="icon pencil" onclick="feedback()" >    Feedback</li>
+								<li class="icon pencil" onclick="request()" >    Request</li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header><!-- #header !-->
+            <header id="finishHeader">
+                <a id="menubadge" style="float:left!important" onclick="af.ui.toggleSideMenu()" class="menuButton" ></a>
+                <h1 style="margin-left:3px;" id="headerText">完成</h1>
+                
+                <!--sideBar -->
+                <div class="panel" id="main" data-title="Main" data-nav="leftNav" data-aside="rightNav">
+                    <div id="#navbar">
+                        <nav>
+                            <ul class="list">
+                                <li class="divider" class="icon home">Home</li>
+                                <li class="icon pencil" onclick="feedback()" >    Feedback</li>
+								<li class="icon pencil" onclick="request()" >    Request</li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header><!-- #header !-->
+            <header id="toBuyHeader">
+                <a id="menubadge" style="float:left!important" onclick="af.ui.toggleSideMenu()" class="menuButton" ></a>
+                <h1 style="margin-left:3px;" id="headerText">買菜清單</h1>
+                
+                <!--sideBar -->
+                <div class="panel" id="main" data-title="Main" data-nav="leftNav" data-aside="rightNav">
+                    <div id="#navbar">
+                        <nav>
+                            <ul class="list">
+                                <li class="divider" class="icon home">Home</li>
+                                <li class="icon pencil" onclick="feedback()" >    Feedback</li>
+								<li class="icon pencil" onclick="request()" >    Request</li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header><!-- #header !-->
+            <header id="browseHeader">
+                <a class="button icon fa-th-large" style="float:right;margin-top:3px;" href="#main_Browse_Category" id="headerBtn" data-transition="fade"></a>
+                <h1 id="headerText">逛食譜</h1>
+
+                <a id="menubadge" style="float:left!important" onclick="af.ui.toggleSideMenu()" class="menuButton" style="float: left;"></a>
+                <!--sideBar -->
+                <div class="panel" id="main" data-title="Main" data-nav="leftNav" data-aside="rightNav">
+                    <div id="#navbar">
+                        <nav>
+                            <ul class="list">
+                                <li class="divider" class="icon home">Home</li>
+                                <li class="icon pencil" onclick="feedback()" >    Feedback</li>
+								<li class="icon pencil" onclick="request()" >    Request</li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header><!-- #header !-->
+            <header id="catHeader">
+                <a class="button icon fa-th-large" style="float:right;margin-top:3px;" href="#main_Browse_Recipe" id="headerBtn" data-transition="fade"></a>
+                <h1 id="headerText">所有分類</h1>
+
+                <a id="menubadge" style="float: left!important" onclick="af.ui.toggleSideMenu()" class="menuButton" ></a>
+                <!--sideBar -->
+                <div class="panel" id="main" data-title="Main" data-nav="leftNav" data-aside="rightNav">
+                    <div id="#navbar">
+                        <nav>
+                            <ul class="list">
+                                <li class="divider" class="icon home">Home</li>
+                                <li class="icon pencil" onclick="feedback()" >    Feedback</li>
+								<li class="icon pencil" onclick="request()" >    Request</li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header><!-- #header !-->
+			<div id="content">
+                <!-- FEEDBACK MODAL -->
+                <div class="panel" id="Feedback" data-title="Feedback" data-modal="true">
+					<div height="60%;">&nbsp;</div>
+                    <div class="formGroupHead" style="margin-left:5%;">Feedback</div>
+                    <form>
+                        <div class="input-group">
+                            <input id="feedbackName" type="text" placeholder="您的名字">
+                            <input id="feedbackMail" type="text" placeholder="Email">
+                            <br/>
+							<p>&nbsp;&nbsp;&nbsp;選擇種類 :</p>
+							<select id="feedbackType">
+                                <option>臭蟲回報</option>
+                                <option>意見</option>
+                            </select>
+                            <textarea id="feedbackContent" rows="8" placeholder="內容"></textarea>
+                        </div>
+                    </form>
+                    <div class="button" style="float:right;" onclick="sendFeedback()"> 送出</div>
+                </div>
+				<div class="panel" id="request" data-title="Request" data-modal="true">
+					<div height="60%;">&nbsp;</div>
+                    <div class="formGroupHead">Request</div>
+                    <form>
+                        <div class="input-group">
+                            <input id="requestName" type="text" placeholder="您的名字">
+                            <input id="requestMail" type="text" placeholder="Email">
+							
+							<p>希望我們新增的食譜 : </p>
+                            <textarea id="requestContent" rows="6" placeholder="ex: 鳳梨蝦球"></textarea>
+                        </div>
+                    </form>
+                    <div class="button" style="float:right;"onclick="sendRequest()"> 送出</div>
+                </div>
+                <!-- BROWSE RECIPE -->
+                <!-- Browse/search recipe here -->
+                <div title='Browse' id="main_Browse_Recipe" class="panel" selected="true" data-load="loadedPanel" data-unload="unloadedPanel" data-tab="navbar_browse" data-pull-scroller='true' data-header="browseHeader" style="background-color:#D8D8D8;">
+                    <div id="Search" style="background-color:#D8D8D8;">
+                            <input type="search" id="SearchBar" placeholder="搜尋食譜, 食材..." style="margin-top:3%" result>
+                    </div>
+                    <div id="SearchResults" style="background-color:#D8D8D8">
+                    </div>
+                    <div id="Results" style="background-color:#D8D8D8">
+                        <div class="recipe_item left">
+                            <img class="recipe_image_wrapper" src="img/small.jpg">
+                            <div class="recipe_descrip icon star" style="margin-bottom:2px;">10&nbsp;&nbsp;&nbsp;Pineapple</div>  
+                            <div class="button" style="width:100%;align:center;margin-top:1px;margin-bottom:1px;">Add To Deck</div>
+                        </div>
+                        <div class="recipe_item left">
+                            <img class="recipe_image_wrapper" src="img/small.jpg">
+                            <div class="recipe_descrip icon star" style="margin-bottom:2px;">10&nbsp;&nbsp;&nbsp;Pineapple</div>  
+                            <div class="button" style="width:100%;align:center;margin-top:1px;margin-bottom:1px;">Add To Deck</div>
+                        </div>
+                    </div>
+                    <div id='infinite' style='height:60px;line-height:60px;font-weight:bold;text-align:center'>Load More</div>
+                </div><!-- #main_Browse_Recipe -->
+
+                <!-- RECIPE CONTENT -->
+                <!-- View recipe content here -->
+                <div title="RecipeName" id="RecipeContent" class="panel" data-load="loadedPanel" data-unload="unloadedPanel" data-tab="navbar_browse" style="background-color:#E6E6E6">
+                    <div id="RecipeContentBtn" class="button" style="width:100%;background:hsl(204.1,35%,53.1%);opacity:.8;height:8%;border-radius:0;border:0;">加到調理台</div>
+                    <div id="Loading"><h3 align="center">Loading...</h3></div>
+                    <div id="Results">
+                        <div class="content_border">
+                            <img id="RecipeImg" src="img/small.jpg" style="width:86%;margin-top:5%;margin-left:7%;border-radius:4px;"><br />
+                            <div style="text-align:center;">
+                                <i id="RecipeDescription"></i><br />
+                                <span id="RecipeUploadInfo"></span><br />
+                                <span id="RecipeTime"></span><br /><br />
+                            </div>
+                        </div><br />
+                        <div id="RecipeIngredients" class="content_border">
+                            <h3 align="center" style="border-radius:5px;margin-top:3px;opacity:0.8;">所需材料<span id="RecipeShare">（人份）</span></h3>
+                            <!--<hr width="100%;size="1"/>!-->
+                            <br/>
+                            <ul id="RecipeIngredientListLeft" style="display:inline-block;margin-left:7%;list-style-type:none;width:45%;">
+                                <ul style="width:50%;float:left;list-style-type:none;">
+                                    
+                                </ul>
+                                <ul style="width:40%;margin-left:10%;float:right;list-style-type:none;">
+                                    
+                                </ul>
+                            </ul>
+                            <ul class="slider" id="RecipeIngredientListRight" style="display:inline-block;list-style-type:none;margin-left:2%;width:40%;">
+                                <ul style="width:50%;float:left;list-style-type:none;">
+                                    
+                                </ul>
+                                <ul style="width:40%;margin-left:10%;float:right;list-style-type:none;">
+                                    
+                                </ul>
+                            </ul>
+                        
+                            <div style="height:2%;">&nbsp;</div>
+                        </div><br />
+                        <div id="steps" class="content_border" >
+                            <h3 align="center" style="border-radius:5px;margin-top:3px;opacity:0.8;">烹煮步驟</h3>
+                            <br />
+                            <ul id="RecipeSteps" class="recipeContent_lists">
+                                
+                            </ul>
+                            <div style="height:2%;">&nbsp;</div>
+                        </div><br />
+                        <br />
+                    </div>
+                </div><!-- #RecipeContent -->
+
+                <!-- BROWSE CATEGORIES -->
+                <!-- Browse categories here -->
+                <div title="Categories" id="main_Browse_Category" class="panel" data-header="catHeader" data-load="loadCateogries" data-unload="unloadedPanel" data-tab="navbar_browse" style="background-color:#D8D8D8;">
+                    <!-- same row !-->
+                    <br />
+                    <div id="Results">
+                        <div class="divider">&nbsp; </div>
+                    </div>
+                    <div id='infinite' style='height:60px;line-height:60px;font-weight:bold;text-align:center'>Load More</div>
+                </div><!-- #main_Browse_Cateogry>
+
+                <!-- CATEGORY CONTENT -->
+                <!-- View what recipe is in the category here -->
+                <div title="CATEGORY TITLE" id="CategoryContent" class="panel" data-load="loadedPanel" data-unload="unloadedPanel" data-tab="navbar_categories" style="background-color:#D8D8D8;">
+                    <div id="Results" style="background-color:#D8D8D8">
+                    </div>
+                    <div id='infinite' style='height:60px;line-height:60px;font-weight:bold;text-align:center'>Loading</div>
+                </div><!-- #CategoryContent -->
+
+                <!-- Deck -->
+                <!-- View stored recipe here -->
+                <div title="Deck" id="main_Deck" class="panel" data-load="loadedPanel" data-unload="unloadedPanel" style="background-color:#D8D8D8" data-pull-scroller='true' data-tab="navbar_deck"  data-header="deckHeader">
+                    <div style="width:100%">
+                        <div id="Results">
+                            <h2 style="color:gray;text-align:center;padding-top:5%;padding-bottom:5%;">逛食譜並加入調理台來煮飯!</h2>
+                            <div id="bottomBar" style="display:block;height:0;clear:both;"> </div> 
+                        </div>
+                        <div class="button-grouped vertical" style="width:100%;display:inline-block;margin:5px 0px;">
+                            <a id="ToBuyBtn" class="button" style="width:49%;border-radius:0;height:9%;border:0;font-size:14pt;display:inline-block;" align="center" >產生買菜清單</a>
+                            <a id="CookBtn" class="button" style="width:49%;border-radius:0;height:9%;border:0;font-size:14pt;display:inline-block;background:hsl(204.1,35%,53.1%);color:white" align="center" data-transition="fade">開始煮飯!</a> 
+                        </div>
+                    </div>
+                </div><!-- #main_Deck -->
+
+                <!-- TO-BUY LIST -->
+                <!-- View what materials the cooking needs here -->
+                <div id="main_ToBuy_List" class="panel" title="買菜清單" data-load="loadedPanel" data-unload="unloadedPanel" style="background-color:white;"data-tab="navbar_tobuylist" data-header="toBuyHeader">
+                    <div id="ToBuyListCookBtn" class="button hidden" style="width:100%;background-color:hsl(204.1,35%,53.1%);border:0;height:10%;font-size:20px;color:white;" href="#Cooking">開始煮飯!</div>
+                    <div id="EmptyNotify"><h2 style="text-align:center;padding-top:5%;">買菜清單是空的</h2>
+                        <h2 style="text-align:center;padding-top:5%;">將食譜加入調理台以產生清單!</h2></div>
+                    <ul class="list" id="list">
+                    </ul>
+                </div><!-- #main_ToBuy_List -->
+
+                <!-- COOKING OVERVIEW -->
+                <!-- Overview the cooking steps -->
+				<div id="Cooking" class="panel" title="準備" style="background-color:#D8D8D8" data-load="loadedPanel" data-unload="unloadedPanel" data-footer='none'>
+                </div><!-- #Cooking -->
+			
+                <!-- COOKING STEP -->
+                <!-- Cooking interface -->
+                <div id="Step" class="panel"  title="Step 8 (47%)" style="background-color:#5A5A5A;" data-load="loadedPanel" data-unload="cookingEnded" data-footer='none'>
+                    <!--<div id="steps_container" style="border:0px 1px 0px 1px solid;width:100%;margin-top:5px;height: calc(100% - 100px);height: -webkit-calc(100% - 100px);">-->
+                    <div id="steps_container" style="border:0px 1px 0px 1px solid #5A5A5A; height:97%">
+                        &nbsp;
+                        
+                        <div class="waiting_step_outer_wrapper invisible">
+                            <div id="NextNextWaitingStep" class="waiting_step_inner_wrapper">
+                                <div id="ProgressBar" class="waiting_step_progress next_step">&nbsp;</div>
+                                <h4 id="ProgressName" class="waiting_step_name">Next next waiting step</h4>
+                                <h4 id="ProgressRemainTime" class="waiting_step_time">00:00:00</h4>
+                            </div>
+                        </div>
+                        <div class="waiting_step_spacer">&nbsp;</div>
+                        <div class="waiting_step_outer_wrapper invisible">
+                            <div id="NextWaitingStep" class="waiting_step_inner_wrapper">
+                                <div id="ProgressBar" class="waiting_step_progress next_step">&nbsp;</div>
+                                <h4 id="ProgressName" class="waiting_step_name">Next waiting step</h4>
+                                <h4 id="ProgressRemainTime" class="waiting_step_time">00:00:00</h4>
+                            </div> 
+                        </div>          
+                        <div class="waiting_step_spacer">&nbsp;</div>
+                        
+                        <div class="this_step_outer_wrapper">
+                            <div id="ThisStep" class="this_step_inner_wrapper">
+                                <div class="h7 this_step_recipe_name">
+                                    Saute beef
+                                </div>
+                                <!--
+                                <div class="this_step_img_wrapper" >
+                                    <img class="this_step_img" src="img/small.jpg"></img>
+                                </div>
+                                -->
+                                <h3 class="this_step_digest">
+                                    Saute beef with sauce A.Saute beef with sauce A.Saute beef with sauce A.
+                                </h3>
+                                <h4 id="ProgressRemainTime" class="this_step_time">2:30</h4>
+                            </div>
+                        </div>
+                        <div class="next_step_outer_wrapper nextstep">
+                            <div id="NextStep" class="next_step_inner_wrapper">
+                                <div id="ProgressBar" class="next_step_progress invisible">&nbsp;</div>
+                                <h4 id="ProgressName" class="next_step_name">Next: Stirfry mushroom</h4>
+                            </div> 
+                        </div>
+                        <div class="step_spacer">&nbsp;</div>
+                        <div class="bottom_btn_holder step_next_btn_wrapper">
+                            <a class="button step_next_btn" style="background-color:hsl(204.1,35%,53.1%); position:absolute;color:white;border:none;">Next </a>
+                        </div>
+                    </div>
+                </div><!-- #Step -->
+
+                <!-- FINISH -->
+                <!-- 'Like' a recipe? View total time elapsed? Feedback?-->
+                <div title="完成" id="Finish" class="panel" data-load="loadedPanel" data-unload="unloadedPanel" style="background-color:#D8D8D8" data-footer='none' data-header='finishHeader'>
+                    <div style="background-color:white;width:100%;height:85%;">
+                        <div style="margin:5% auto auto 5%">
+                            <h1 style="padding-top:5%;">恭喜完成!</h1>
+                            <h2 style="padding-top:5%;">你用了 <span id="TotalTimeSpent">X</span> 來煮這些食譜。</h2>
+                            <br />
+                            <h2 style="padding-top:5%;">順帶一提，這些食譜原本會需要 <span id="OriginalTime">Y</span> 來製作。</h2>   
+                         </div>    
+                    </div>
+                    <div class="bottom_btn_holder" >
+                        <a id="DoneBtn" class="button icon fa-home chinese_font" style="width:100%;height:10%;color:white;border:none;background-color:hsl(204.1,35%,53.1%);font-size:20pt;" href="#main_Browse_Recipe">完成!</a>
+                    </div>
+                </div><!-- #Finish !-->
+            </div><!-- #content !-->
+
+			<footer id="navbar">
+                <a href="#main_Browse_Recipe" id='navbar_browse' class='icon fa-globe'>逛食譜</a>
+                <a href="#main_Deck" id='navbar_deck' class='icon fa-cutlery'>調理台(-1)</a>
+                <a href="#main_ToBuy_List" id='navbar_tobuylist' class='icon fa-shopping-cart'>買菜清單</a>
+            </footer><!-- #navbar !-->
+		</div><!-- #afui !-->
+	</body>
+</html>
